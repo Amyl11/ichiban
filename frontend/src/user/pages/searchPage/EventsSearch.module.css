@@ -1,0 +1,133 @@
+/* ===== Layout chung ===== */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right,
+    #ffedd5, /* orange-100 */
+    #fce7f3, /* pink-100 */
+    #f3e8ff  /* purple-100 */
+  );
+}
+
+.wrapper {
+  margin: 20px;
+  padding: 16px;
+}
+
+/* ===== Box ===== */
+.box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* ===== Input, Flex ===== */
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+}
+
+.flex {
+  display: flex;
+  gap: 10px;
+}
+
+/* ===== Buttons ===== */
+.buttonPrimary {
+  padding: 8px 14px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.buttonPrimary:hover {
+  background: #1e40af;
+}
+
+.buttonSecondary {
+  padding: 8px 14px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.buttonSecondary:hover {
+  background: #d1d5db;
+}
+
+/* ===== Grid ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.full {
+  grid-column: span 2;
+}
+
+/* ===== Result item ===== */
+.item {
+  display: flex;
+  background: #dfdfdf;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.itemImage {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.itemContent {
+  flex: 1;
+}
+
+.itemTitle {
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #111;
+}
+
+.itemTitle:hover {
+  color: #2563eb;
+}
+
+.rightBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.detailBtn {
+  padding: 6px 12px;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.detailBtn:hover {
+  background: #1e40af;
+}

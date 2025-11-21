@@ -1,9 +1,14 @@
+import { Routes, Route } from "react-router-dom";
+import './App.css'
 import Auth from "./user/components/Auth";
+import EventsSearch from './user/pages/searchPage/EventsSearch';
 
 function App() {
-
   return (
-    <Auth />
+    <Routes>
+      <Route path="/auth" element={<Auth/>}/>
+      <Route path="/events" element={<EventsSearch/>}/>
+    </Routes>
   )
 }
 

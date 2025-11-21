@@ -1,0 +1,87 @@
+/* Container */
+.box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  margin: 0;
+  margin-bottom: 18px;
+  font-size: 2rem;
+  color: #111827;
+}
+
+/* Row 1 */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Label + input theo cột */
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+/* Input */
+.input {
+  width: 95%;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+}
+
+/* Nút */
+.buttonPrimary {
+  background: linear-gradient(to right, #ef4444, #ec4899); /* red-500 → pink-500 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+}
+
+.buttonPrimary:hover {
+  background: linear-gradient(to right, #dc2626, #db2777); /* red-600 → pink-600 */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.buttonSecondary {
+  background: #f3f4f6;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  color: #374151;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.buttonSecondary:hover {
+  background: #e5e7eb;
+}
+
+/* Grid cho hàng điều kiện */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+

@@ -1,0 +1,53 @@
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* Nút số */
+.pageBtn {
+  padding: 8px 14px;
+  min-width: 40px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #f3f4f6; /* xám nhẹ */
+  color: #374151;
+  transition: 0.25s;
+}
+
+.pageBtn:hover {
+  background: linear-gradient(to right, #fb923c, #ec4899, #a855f7);
+  color: white;
+}
+
+/* Nút đang active với gradient theme của bạn */
+.active {
+  background: linear-gradient(to right, #fb923c, #ec4899, #a855f7);
+  color: white;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.35);
+}
+
+/* Nút điều hướng */
+.navBtn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  background: #f3f4f6;
+  transition: 0.2s;
+}
+
+.navBtn:hover {
+  background: linear-gradient(to right, #fb923c, #ec4899, #a855f7);
+  color: #000;
+}
+
+.navBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
