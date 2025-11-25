@@ -11,27 +11,31 @@ const Logo = () => (
 );
 
 // Input Field Component
-const InputField = ({ type, placeholder, icon: Icon, value, onChange, label }) => (
-  <div className="mb-5">
-    {label && (
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        {label}
-      </label>
-    )}
-    <div className="relative">
-      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-        <Icon size={20} />
+const InputField = ({ type, placeholder, icon, value, onChange, label }) => {
+  const IconComponent = icon;
+
+  return (
+    <div className="mb-5">
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+          <IconComponent size={20} />
+        </div>
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 focus:bg-white text-gray-800 placeholder-gray-400"
+        />
       </div>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 focus:bg-white text-gray-800 placeholder-gray-400"
-      />
     </div>
-  </div>
-);
+  );
+};
 
 // Button Component
 const Button = ({ children, onClick, loading = false }) => (
@@ -79,8 +83,23 @@ const SocialButton = ({ provider, onClick }) => (
   </button>
 );
 
+// Local welcome page after login (simple test view)
+const LocalMessagePage = ({ username, onBackToLogin }) => (
+  <div className="min-h-screen bg-white flex flex-col items-center justify-center space-y-4">
+    <p className="text-xl text-gray-800">
+      Đăng nhập thành công. Xin chào {username || 'bạn'}!
+    </p>
+    <button
+      onClick={onBackToLogin}
+      className="px-4 py-2 border border-gray-400 rounded hover:bg-gray-100"
+    >
+      Quay lại trang đăng nhập
+    </button>
+  </div>
+);
+
 // Login Form Component
-const LoginForm = ({ onSwitchToRegister }) => {
+const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -96,6 +115,10 @@ const LoginForm = ({ onSwitchToRegister }) => {
       // nếu cần nhớ đăng nhập thì xử lý thêm ở đây
       if (rememberMe && data.token) {
         localStorage.setItem("token", data.token);
+      }
+
+      if (onLoginSuccess) {
+        onLoginSuccess(data?.username || username);
       }
     } catch (err) {
       console.error("Login fail:", err);
@@ -284,12 +307,32 @@ const RegisterForm = ({ onSwitchToLogin }) => {
 // Main App Component
 export default function Auth() {
   const [showLogin, setShowLogin] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState('');
+
+  if (isLoggedIn) {
+    return (
+      <LocalMessagePage
+        username={loggedInUser}
+        onBackToLogin={() => {
+          setIsLoggedIn(false);
+          setShowLogin(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md">
         {showLogin ? (
-          <LoginForm onSwitchToRegister={() => setShowLogin(false)} />
+          <LoginForm
+            onSwitchToRegister={() => setShowLogin(false)}
+            onLoginSuccess={(name) => {
+              setLoggedInUser(name);
+              setIsLoggedIn(true);
+            }}
+          />
         ) : (
           <RegisterForm onSwitchToLogin={() => setShowLogin(true)} />
         )}
