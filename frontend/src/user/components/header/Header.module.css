@@ -1,0 +1,74 @@
+.header {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 192, 203, 0.25); /* hồng nhạt */;
+  top: 0;
+  z-index: 20;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* LEFT: Logo */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(to bottom right, #fb7185, #f472b6); /* pink-red pastel */
+  color: white;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* NAV LINKS */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.link {
+  font-size: 14px;
+  color: #7f1d1d; /* đỏ nâu pastel */
+  text-decoration: none;
+  transition: 0.25s;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: #be123c; /* đậm hơn khi hover */
+}
+
+/* LOGIN BUTTON */
+.loginBtn {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: linear-gradient(to right, #f43f5e, #ec4899); /* cùng màu button bạn dùng */
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.25s;
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.25);
+}
+
+.loginBtn:hover {
+  background: linear-gradient(to right, #e11d48, #db2777);
+  box-shadow: 0 3px 10px rgba(244, 63, 94, 0.35);
+  color: white;
+}

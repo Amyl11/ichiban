@@ -1,0 +1,96 @@
+.item {
+  display: flex;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.itemImage {
+  width: 240px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.itemContent {
+  flex: 1;
+}
+
+.itemTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.categories {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.categoryTag {
+  background: #ffd6e7;
+  color: #b91c1c;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.location {
+  font-size: 16px;
+  color: #555;
+}
+
+.desc {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+.rightBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* Vòng rating màu vàng */
+.rating {
+  background: #ffcf48;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Giá */
+.price {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Nút chi tiết */
+.detailBtn {
+  padding: 6px 12px;
+  background: linear-gradient(to right, #ef4444, #ec4899); /* red-500 → pink-500 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.detailBtn:hover {
+  background: linear-gradient(to right, #dc2626, #db2777); /* red-600 → pink-600 */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
