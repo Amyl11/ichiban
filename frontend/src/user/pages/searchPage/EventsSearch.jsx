@@ -9,75 +9,16 @@ import { getAllEvents } from "../../../services/EventService";
 const userDistrict = "Hai Ba Trung"
 const userCity = "Ha Noi"
 
-const SAMPLE = [
-  {
-    id: 1,
-    title: "Công viên Thống Nhất",
-    categories: ["Công viên", "Thiên nhiên"],
-    district: "Hoang Mai",
-    city: "Ha Noi",
-    description: "Công viên rộng, nhiều cây xanh, phù hợp cho gia đình.",
-    startDatetime: "2024-06-01T08:00:00",
-    endDatetime: "2024-06-01T18:00:00",
-    rating: 4.5,
-    price: 0,
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
-  },
-  {
-    id: 2,
-    title: "Quán cà phê Mộc",
-    district: "Hai Ba Trung",
-    city: "Ha Noi",
-    description: "Quán nhỏ xinh, cà phê ngon, có không gian đọc sách.",
-        startDatetime: "2024-06-01T08:00:00",
-    endDatetime: "2024-06-01T18:00:00",
-
-    rating: 4.2,
-    price: 50000,
-    image:
-      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80",
-  },
-  {
-    id: 3,
-    title: "Bảo tàng Nghệ thuật",
-    district: "Quan 2",
-    city: "HCM",
-    description: "Triển lãm nghệ thuật đương đại.",
-        startDatetime: "2024-06-01T08:00:00",
-    endDatetime: "2024-06-01T18:00:00",
-
-    rating: 4.8,
-    price: 0,
-    image:
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
-  },
-  {
-    id: 4,
-    title: "Nhà hàng Biển Xanh",
-    district: "Quan 1",
-    city: "HCM",
-    description: "Nhà hàng hải sản tươi sống, view biển đẹp.",
-        startDatetime: "2024-06-01T08:00:00",
-    endDatetime: "2024-06-01T18:00:00",
-
-    rating: 4.3,
-    price: 200000,
-    image:
-      "https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&q=80",
-  },
-];
-
 /* ========================= MAIN PAGE ========================= */
 export default function EventsSearch() {
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(events.length / itemsPerPage);
   const [filters, setFilters] = useState({
     keyword: "",
+    rangeOption: "all",
     sortOption: "none",
-    maxPrice: null, // hoặc 0, hoặc undefined tùy mặc định
+    maxPrice: 500000,
   });
 
   const [userLocation, setUserLocation] = useState({ city: "", district: "" });
@@ -132,7 +73,9 @@ export default function EventsSearch() {
         default: return 0;
       }
     });
-  }, [filters, userLocation]);
+  }, [filters, userLocation, events]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   const paginated = useMemo(() => {
     const start = (page - 1) * itemsPerPage;

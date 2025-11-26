@@ -26,10 +26,10 @@ export default function EventCard({ place }) {
         </div>
 
         <div className={styles.date}>
-          {formatDate(place.startDatetime)} - {formatDate(place.endDatetime)}
+          {formatDate(place.startDate)} - {formatDate(place.endDate)}
         </div>
 
-        <div className={styles.desc}>{place.description}</div>
+        <div className={styles.desc}>{place.shortDescription}</div>
       </div>
 
       <div className={styles.rightBox}>

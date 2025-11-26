@@ -11,7 +11,7 @@ function SearchBox({ filters, setFilters, onSearch }) {
     setKeyword(filters.keyword || "");
     setSortOption(filters.sortOption || "none");
     setRangeOption(filters.rangeOption || "all");
-    setMaxPrice(filters.maxPrice || 0);
+    setMaxPrice(filters.maxPrice || 500000);
   }, [filters]);
 
   const apply = () => {
@@ -24,12 +24,12 @@ function SearchBox({ filters, setFilters, onSearch }) {
       keyword: "",
       sortOption: "none",
       rangeOption: "all",
-      maxPrice: 0,
+      maxPrice: 500000,
     };
     setKeyword("");
     setSortOption("none");
     setRangeOption("all");
-    setMaxPrice(0);
+    setMaxPrice(500000);
     setFilters(resetData);
   };
 
@@ -98,7 +98,7 @@ function SearchBox({ filters, setFilters, onSearch }) {
             value={maxPrice}
             onChange={(e) => setMaxPrice(Number(e.target.value))}
             className={styles.input}
-            placeholder="0"
+            placeholder="Giá tối đa"
           />
         </div>
       </div>
