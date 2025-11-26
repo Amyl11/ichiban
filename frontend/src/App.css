@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+html,
+body {
+  min-height: 100svh;
+}
+body {
+  margin: 0;
+}
+
+#root {
+  width: min(100%);
+  min-height: 100svh;
+  height: auto;
+  box-sizing: border-box;
+  overflow: visible;
+  margin: 0 auto;
+}
