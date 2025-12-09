@@ -1,8 +1,10 @@
 package com.example.event.controller;
 
 import com.example.event.dto.request.LoginRequest;
+import com.example.event.dto.request.RegisterRequest;
 import com.example.event.dto.response.ErrorResponse;
 import com.example.event.dto.response.LoginResponse;
+import com.example.event.dto.response.RegisterResponse;
 import com.example.event.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,30 @@ public class AuthController {
                 "Internal Server Error",
                 "Đã xảy ra lỗi khi xử lý yêu cầu đăng nhập",
                 "/api/auth/login"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        try {
+            RegisterResponse response = authService.register(registerRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                e.getMessage(),
+                "/api/auth/register"
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "Đã xảy ra lỗi khi xử lý yêu cầu đăng ký",
+                "/api/auth/register"
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
