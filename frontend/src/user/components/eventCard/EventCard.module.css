@@ -3,7 +3,7 @@
   background: #ffffff;
   border-radius: 10px;
   padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   gap: 14px;
   align-items: flex-start;
   margin-top: 16px;
@@ -48,7 +48,7 @@
   color: #000000;
 }
 
-.date{
+.date {
   font-size: 16px;
   color: #000000;
   margin-top: 4px;
@@ -85,7 +85,8 @@
 /* Nút chi tiết */
 .detailBtn {
   padding: 6px 12px;
-  background: linear-gradient(to right, #ef4444, #ec4899); /* red-500 → pink-500 */
+  background: linear-gradient(to right, #ef4444, #ec4899);
+  /* red-500 → pink-500 */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
   border-radius: 6px;
@@ -97,6 +98,116 @@
 }
 
 .detailBtn:hover {
-  background: linear-gradient(to right, #dc2626, #db2777); /* red-600 → pink-600 */
+  background: linear-gradient(to right, #dc2626, #db2777);
+  /* red-600 → pink-600 */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Overlay mờ */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease;
+  z-index: 999;
+}
+
+/* Modal chính */
+.modal {
+  background: #fff;
+  width: 400px;
+  max-width: 92%;
+  padding: 20px;
+  border-radius: 12px;
+  animation: popup 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modalTitle {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Stars */
+.starContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 30px;
+  margin-bottom: 15px;
+}
+
+.star {
+  cursor: pointer;
+  color: #bbb;
+  transition: 0.2s;
+}
+
+.activeStar {
+  color: #FFD700;
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  height: 90px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: none;
+  margin-bottom: 15px;
+}
+
+/* Action buttons */
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelBtn {
+  background: #ddd;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submitBtn {
+  background: #007BFF;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes popup {
+  from {
+    transform: scale(0.85);
+    opacity: 0
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1
+  }
 }
