@@ -114,7 +114,7 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
       // CALL LOGIN API
       const data = await loginAPICall(username, password);
       console.log("Login ok:", data);
-      navigate('/');
+      navigate('/events/search');
     } catch (err) {
       console.error("Login fail:", err);
       alert("Login failed");

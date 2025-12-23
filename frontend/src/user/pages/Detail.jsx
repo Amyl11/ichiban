@@ -192,12 +192,12 @@ export default function PlaceDetailPage() {
             <div className="relative bg-gray-200 rounded-2xl overflow-hidden shadow-lg group">
               <div className="aspect-video w-full">
                 <img
-                  src={place.images[currentImageIndex]}
+                  src={place?.images?.[currentImageIndex] || "https://via.placeholder.com/800x450"}
                   alt="Place"
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {place.images.length > 1 && (
                 <>
                   <button
@@ -212,15 +212,14 @@ export default function PlaceDetailPage() {
                   >
                     <ChevronRight size={24} />
                   </button>
-                  
+
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                     {place.images.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentImageIndex ? 'bg-white w-8' : 'bg-white/60 w-2'
-                        }`}
+                        className={`h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-8' : 'bg-white/60 w-2'
+                          }`}
                       />
                     ))}
                   </div>
@@ -232,10 +231,10 @@ export default function PlaceDetailPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{place.name}</h1>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{place.title}</h1>
                   <div className="flex items-center gap-2 text-gray-600 mb-3">
                     <MapPin size={18} className="text-red-500" />
-                    <span>{place.location}</span>
+                    <span>{place.address}, {place.district}, {place.city}</span>
                   </div>
                 </div>
                 <button 
@@ -251,7 +250,7 @@ export default function PlaceDetailPage() {
                   <Heart size={24} fill={isFavorited ? 'currentColor' : 'none'} />
                 </button>
               </div>
-              
+
               <div className="flex flex-wrap gap-2 mb-4">
                 {place.categories.map((category, index) => (
                   <span
@@ -263,12 +262,19 @@ export default function PlaceDetailPage() {
                   </span>
                 ))}
               </div>
-              
+
               <div className="flex items-center gap-2 text-gray-600 mb-4 bg-blue-50 p-3 rounded-lg">
                 <Clock size={18} className="text-blue-500" />
-                <span className="font-medium">{place.openingHours}</span>
+                <span className="font-medium">{formatDate(place.startDate)} - {formatDate(place.endDate)}</span>
               </div>
-              
+
+              <div className="flex items-center gap-2 text-gray-600 mb-4 bg-green-50 p-3 rounded-lg">
+                <Tag size={18} className="text-green-600" />
+                <span className="font-semibold text-green-700">
+                  {formatPrice(place.price)}
+                </span>
+              </div>
+
               <p className="text-gray-700 leading-relaxed text-lg">{place.description}</p>
             </div>
 
@@ -294,6 +300,76 @@ export default function PlaceDetailPage() {
                 Share
               </button>
             </div>
+
+            {/* Review Form */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Star className="text-yellow-500" />
+                レビューを書く
+              </h2>
+              
+              <form onSubmit={handleSubmitReview} className="space-y-4">
+                {/* Star Rating */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    評価 <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        onMouseEnter={() => setHoveredRating(star)}
+                        onMouseLeave={() => setHoveredRating(0)}
+                        className="transition-transform hover:scale-110 focus:outline-none"
+                      >
+                        <Star
+                          size={32}
+                          className={
+                            star <= (hoveredRating || rating)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
+                          }
+                        />
+                      </button>
+                    ))}
+                    {rating > 0 && (
+                      <span className="ml-2 text-sm text-gray-600 font-medium">
+                        {rating} / 5
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Comment Textarea */}
+                <div>
+                  <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
+                    コメント <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="comment"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={5}
+                    placeholder="このイベントについての感想を書いてください..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none text-gray-700"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {comment.length} 文字
+                  </p>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={submitting || rating === 0 || !comment.trim()}
+                  className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white py-3.5 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg"
+                >
+                  {submitting ? '投稿中...' : 'レビューを投稿'}
+                </button>
+              </form>
+            </div>
           </div>
 
           {/* Right Column - Map & Reviews */}
@@ -304,7 +380,7 @@ export default function PlaceDetailPage() {
                 <MapPin className="text-red-500" />
                 Location
               </h2>
-              
+
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 mb-4 flex items-center justify-center min-h-[200px] border-2 border-dashed border-blue-200">
                 <div className="text-center">
                   <MapPin size={48} className="text-blue-400 mx-auto mb-3" />
@@ -320,9 +396,9 @@ export default function PlaceDetailPage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700 font-medium">{place.address}</p>
+                <p className="text-gray-700 font-medium">{place.address}, {place.district}, {place.city}</p>
               </div>
             </div>
 

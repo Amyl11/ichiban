@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams } from 'react-router-dom';
 import styles from "./EventsSearch.module.css"; // CSS Module
 import Header from "../../components/header/Header";
 import SearchBox from "../../components/searchBox/SearchBox";
@@ -12,12 +12,14 @@ const userCity = "Ha Noi"
 
 /* ========================= MAIN PAGE ========================= */
 export default function EventsSearch() {
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
+  
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
   const [filters, setFilters] = useState({
-    keyword: "",
+    keyword: initialQuery,
     rangeOption: "all",
     sortOption: "none",
     maxPrice: 500000,
@@ -33,7 +35,7 @@ export default function EventsSearch() {
 
   const fetchData = async () => {
     const data = await getAllEvents();
-    console.log("Fetched events data:", data.events);
+    console.log("取得したイベントデータ:", data.events); // 翻訳: Fetched events data:
     setEvents(data.events);
   };
 
@@ -42,8 +44,8 @@ export default function EventsSearch() {
   }, []);
 
   const handleSearch = () => {
-    // No need to do anything if filters are already set
-    console.log("Searching with filters:", filters);
+    // Có thể không cần làm gì nếu filters đã được set
+    console.log("以下のフィルターで検索:", filters); // 翻訳: Tìm kiếm với filters:
   };
 
   const filtered = useMemo(() => {
@@ -58,7 +60,7 @@ export default function EventsSearch() {
       }
 
       if (filters.maxPrice != null && p.price > filters.maxPrice) return false;
-      
+
       return true;
     }).sort((a, b) => {
       switch (filters.sortOption) {
@@ -95,8 +97,8 @@ export default function EventsSearch() {
           onSearch={handleSearch}
         />
         <div className="mb-2 text-sm text-gray-600">
-          Current location: {userLocation.city} - {userLocation.district}
-        </div>
+          現在の場所: {userLocation.city} - {userLocation.district}
+        </div> {/* 翻訳: Địa điểm hiện tại: */}
         {paginated.map(place => (
           <EventCard key={place.id} place={place} onCardClick={() => navigate(`/event/${place.id}`)} />
         ))}
