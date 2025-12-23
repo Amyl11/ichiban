@@ -93,7 +93,7 @@ public class EventServiceImpl implements EventService {
         ) / 10.0;
 
         item.setRating(randomRating);
-        item.setImage(null);  // optional, add image URL field in Event if needed
+        item.setImage(event.getImageUrl()); // optional, add image URL field in Event if needed
         return item;
     }
 

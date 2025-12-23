@@ -45,12 +45,27 @@ export default function Header() {
 
   const handleLocations = () => {
     setMobileMenuOpen(false);
-    navigate('/locations');
+    navigate('/events/search');
   };
 
   const handleAbout = () => {
     setMobileMenuOpen(false);
     navigate('/about');
+  };
+
+  const handleFavorites = () => {
+    setMobileMenuOpen(false);
+    navigate('/favorites');
+  };
+
+  const handleSearch = () => {
+    setMobileMenuOpen(false);
+    navigate('/events/search');
+  };
+
+  const handleEvents = () => {
+    setMobileMenuOpen(false);
+    navigate('/events/search');
   };
 
   const getInitials = (name) => {
@@ -81,19 +96,25 @@ export default function Header() {
               onClick={handleHome}
               className="text-sm text-rose-900 font-medium hover:text-rose-700 transition-colors duration-250"
             >
-              Trang chủ
+              Home
             </button>
             <button
               onClick={handleLocations}
               className="text-sm text-rose-900 font-medium hover:text-rose-700 transition-colors duration-250"
             >
-              Địa điểm
+              Locations
             </button>
             <button
               onClick={handleAbout}
               className="text-sm text-rose-900 font-medium hover:text-rose-700 transition-colors duration-250"
             >
-              Giới thiệu
+              About
+            </button>
+            <button
+              onClick={handleFavorites}
+              className="text-sm text-rose-900 font-medium hover:text-rose-700 transition-colors duration-250 flex items-center gap-1"
+            >
+              ❤️ Favorites
             </button>
 
             {!isLoggedIn ? (
@@ -102,13 +123,13 @@ export default function Header() {
                   onClick={handleLogin}
                   className="px-4 py-2 text-sm bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:shadow-rose-500/35 hover:-translate-y-0.5 transition-all duration-250"
                 >
-                  Đăng nhập
+                  Login
                 </button>
                 <button
                   onClick={handleSignup}
                   className="px-4 py-2 text-sm bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:shadow-rose-500/35 hover:-translate-y-0.5 transition-all duration-250"
                 >
-                  Đăng ký
+                  Sign Up
                 </button>
               </>
             ) : (
@@ -133,7 +154,7 @@ export default function Header() {
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm bg-white text-rose-500 border border-rose-500 rounded-lg font-medium hover:bg-rose-500 hover:text-white hover:shadow-md hover:shadow-rose-500/25 transition-all duration-250"
                 >
-                  Đăng xuất
+                  Logout
                 </button>
               </div>
             )}
@@ -155,19 +176,19 @@ export default function Header() {
               onClick={handleHome}
               className="text-left px-4 py-2 text-sm text-rose-900 font-medium hover:bg-rose-50 rounded-lg transition-colors"
             >
-              Trang chủ
+              Home
             </button>
             <button
               onClick={handleLocations}
-              className="text-left px-4 py-2 text-sm text-rose-900 font-medium hover:bg-rose-50 rounded-lg transition-colors"
+              className="block w-full text-left px-4 py-2 text-sm text-rose-900 font-medium hover:bg-rose-50 rounded-lg transition-colors"
             >
-              Địa điểm
+              Locations
             </button>
             <button
               onClick={handleAbout}
-              className="text-left px-4 py-2 text-sm text-rose-900 font-medium hover:bg-rose-50 rounded-lg transition-colors"
+              className="block w-full text-left px-4 py-2 text-sm text-rose-900 font-medium hover:bg-rose-50 rounded-lg transition-colors"
             >
-              Giới thiệu
+              About
             </button>
 
             {!isLoggedIn ? (
@@ -176,13 +197,13 @@ export default function Header() {
                   onClick={handleLogin}
                   className="px-4 py-2 text-sm bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg shadow-md shadow-rose-500/25 font-medium"
                 >
-                  Đăng nhập
+                  Login
                 </button>
                 <button
                   onClick={handleSignup}
                   className="px-4 py-2 text-sm bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg shadow-md shadow-rose-500/25 font-medium"
                 >
-                  Đăng ký
+                  Sign Up
                 </button>
               </>
             ) : (
@@ -209,7 +230,7 @@ export default function Header() {
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm bg-white text-rose-500 border border-rose-500 rounded-lg font-medium"
                 >
-                  Đăng xuất
+                  Logout
                 </button>
               </>
             )}

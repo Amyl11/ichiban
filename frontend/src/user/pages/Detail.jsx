@@ -1,45 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Home, Search, Heart, Calendar, Menu, MapPin, Tag, Clock, ChevronLeft, ChevronRight, Share2, Star, ArrowLeft, Navigation } from 'lucide-react';
+import { fetchEventDetail } from '../../services/SearchDetailService';
+import { addToFavorite, removeFromFavorite, checkIfFavorited } from '../../services/FavoriteService';
 
 export default function PlaceDetailPage() {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
 
-  // Mock data
-  const place = {
-    id: 1,
-    name: '上野公園',
-    location: '東京・公園・無料',
-    address: '東京都台東区上野公園5-20',
-    categories: ['公園', '家族向け', '無料'],
-    openingHours: '24時間営業',
-    description: '広大な敷地を持つ都市公園。動物園、美術館、博物館などが集まり、家族で一日中楽しめるスポットです。春には桜の名所として有名で、多くの観光客が訪れます。自然豊かな環境で、子供から大人まで楽しめる施設が充実しています。',
-    images: [
-      'https://images.unsplash.com/photo-1590559899731-a382839e5549?w=800',
-      'https://images.pexels.com/photos/31139933/pexels-photo-31139933.jpeg?w=800',
-      'https://images.pexels.com/photos/34991505/pexels-photo-34991505.jpeg?w=800'
-    ]
-  };
+  // Fetch event data on component mount
+  useEffect(() => {
+    const loadEventDetail = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchEventDetail(eventId);
+        setEventData(data);
+        
+        // Check if already favorited
+        const favorited = await checkIfFavorited(eventId);
+        setIsFavorited(favorited);
+      } catch (err) {
+        setError(err.message);
+        console.error('Failed to load event:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const reviews = [
-    {
-      userName: '田中太郎',
-      rating: 5,
-      date: '2024/12/01',
-      comment: '家族で訪れました。子供たちが大喜びで、一日中楽しめました！桜の季節にまた来たいです。'
-    },
-    {
-      userName: '佐藤花子',
-      rating: 4,
-      date: '2024/11/28',
-      comment: '広くて気持ちいい公園です。美術館も近くにあり、文化的な休日を過ごせました。'
-    },
-    {
-      userName: '山田次郎',
-      rating: 5,
-      date: '2024/11/25',
-      comment: '動物園も含めて、家族連れには最高のスポットです。一日では回りきれないほど見どころがあります。'
+    if (eventId) {
+      loadEventDetail();
     }
-  ];
+  }, [eventId]);
+
+  // Use fetched data or show loading/error state
+  const place = eventData ? {
+    id: eventData.id,
+    name: eventData.title,
+    location: eventData.locationSummary,
+    address: eventData.address,
+    categories: eventData.categories,
+    openingHours: `${eventData.startDatetime} - ${eventData.endDatetime}`,
+    description: eventData.description,
+    images: eventData.images || [],
+    price: eventData.price
+  } : null;
+
+  const reviews = eventData?.reviews || [];
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % place.images.length);
@@ -57,7 +69,25 @@ export default function PlaceDetailPage() {
         url: window.location.href
       });
     } else {
-      alert('この機能はお使いのブラウザではサポートされていません');
+      alert('This feature is not supported by your browser');
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      setIsUpdatingFavorite(true);
+      if (isFavorited) {
+        await removeFromFavorite(eventId);
+        setIsFavorited(false);
+      } else {
+        await addToFavorite(eventId);
+        setIsFavorited(true);
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert('Error updating favorite status');
+    } finally {
+      setIsUpdatingFavorite(false);
     }
   };
 
@@ -66,8 +96,33 @@ export default function PlaceDetailPage() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
   };
 
+  const handleNavigateHome = () => navigate('/');
+  const handleNavigateSearch = () => navigate('/events/search');
+  const handleNavigateFavorites = () => navigate('/favorites');
+  const handleNavigateEvents = () => navigate('/events/search');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50">
+      {loading && (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading event details...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <p className="text-red-600 font-semibold mb-2">Error Loading Event</p>
+            <p className="text-red-500">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {place && !loading && !error && (
+      <>
       {/* Header */}
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,27 +132,39 @@ export default function PlaceDetailPage() {
                 <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">HW</span>
                 </div>
-                <span className="text-xl font-bold text-gray-900">ハッピーウィークエンド</span>
+                <span className="text-xl font-bold text-gray-900">Happy Weekend</span>
               </div>
-              <span className="text-sm text-gray-500 hidden sm:block">週末の冒険</span>
+              <span className="text-sm text-gray-500 hidden sm:block">Weekend Adventures</span>
             </div>
             
             <nav className="hidden md:flex items-center gap-6">
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={handleNavigateHome}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
                 <Home size={20} />
-                <span>ホーム</span>
+                <span>Home</span>
               </button>
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={handleNavigateSearch}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
                 <Search size={20} />
-                <span>検索</span>
+                <span>Search</span>
               </button>
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={handleNavigateFavorites}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
                 <Heart size={20} />
-                <span>お気に入り</span>
+                <span>Favorites</span>
               </button>
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={handleNavigateEvents}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
                 <Calendar size={20} />
-                <span>イベント</span>
+                <span>Events</span>
               </button>
             </nav>
             
@@ -115,7 +182,7 @@ export default function PlaceDetailPage() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
         >
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium">戻る</span>
+          <span className="font-medium">Back</span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -171,8 +238,17 @@ export default function PlaceDetailPage() {
                     <span>{place.location}</span>
                   </div>
                 </div>
-                <button className="bg-red-50 hover:bg-red-100 text-red-500 p-3 rounded-full transition-all hover:scale-110">
-                  <Heart size={24} />
+                <button 
+                  onClick={handleToggleFavorite}
+                  disabled={isUpdatingFavorite}
+                  className={`p-3 rounded-full transition-all transform hover:scale-110 ${
+                    isFavorited 
+                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/50' 
+                      : 'bg-white border-2 border-red-200 text-red-500 hover:border-red-400'
+                  } disabled:opacity-50`}
+                  title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Heart size={24} fill={isFavorited ? 'currentColor' : 'none'} />
                 </button>
               </div>
               
@@ -199,18 +275,23 @@ export default function PlaceDetailPage() {
             {/* Action Buttons */}
             <div className="flex gap-3">
               <button
-                onClick={() => alert('お気に入りに追加しました！')}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 text-white py-3.5 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105"
+                onClick={handleToggleFavorite}
+                disabled={isUpdatingFavorite}
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 ${
+                  isFavorited 
+                    ? 'bg-red-500 hover:bg-red-600 hover:shadow-xl text-white' 
+                    : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 hover:shadow-xl text-white'
+                }`}
               >
-                <Heart size={20} />
-                お気に入りに追加
+                <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
+                {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
               </button>
               <button
                 onClick={handleShare}
                 className="flex items-center justify-center gap-2 bg-white border-2 border-gray-300 text-gray-700 py-3.5 px-6 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
               >
                 <Share2 size={20} />
-                シェアー
+                Share
               </button>
             </div>
           </div>
@@ -221,21 +302,21 @@ export default function PlaceDetailPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <MapPin className="text-red-500" />
-                場所
+                Location
               </h2>
               
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 mb-4 flex items-center justify-center min-h-[200px] border-2 border-dashed border-blue-200">
                 <div className="text-center">
                   <MapPin size={48} className="text-blue-400 mx-auto mb-3" />
                   <p className="text-gray-600 mb-4 font-medium">
-                    地図 (API統合時にGoogleマップを埋め込む)
+                    Map (Embed Google Maps when API is integrated)
                   </p>
                   <button
                     onClick={openInGoogleMaps}
                     className="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-all shadow-md hover:shadow-lg transform hover:scale-105 font-semibold"
                   >
                     <Navigation size={18} />
-                    Googleマップで開く
+                    Open in Google Maps
                   </button>
                 </div>
               </div>
@@ -249,7 +330,7 @@ export default function PlaceDetailPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Star className="text-yellow-500 fill-yellow-500" />
-                レビュー
+                Reviews
               </h2>
               
               <div className="space-y-4">
@@ -281,6 +362,8 @@ export default function PlaceDetailPage() {
           </div>
         </div>
       </main>
+      </>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventCommentRepository extends JpaRepository<EventComment, Long> {
@@ -16,4 +17,9 @@ public interface EventCommentRepository extends JpaRepository<EventComment, Long
 
     List<EventComment> findByUserId(Long userId);
 
+    // Efficient check for the "One comment per user" rule
+    boolean existsByEventIdAndUserId(Long eventId, Long userId);
+    
+    // Used for PUT and DELETE to ensure the comment belongs to the user
+    Optional<EventComment> findByIdAndUserId(Long id, Long userId);
 }

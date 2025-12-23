@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./EventsSearch.module.css"; // CSS Module
 import Header from "../../components/header/Header";
 import SearchBox from "../../components/searchBox/SearchBox";
@@ -11,6 +12,7 @@ const userCity = "Ha Noi"
 
 /* ========================= MAIN PAGE ========================= */
 export default function EventsSearch() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
@@ -40,8 +42,8 @@ export default function EventsSearch() {
   }, []);
 
   const handleSearch = () => {
-    // Có thể không cần làm gì nếu filters đã được set
-    console.log("Tìm kiếm với filters:", filters);
+    // No need to do anything if filters are already set
+    console.log("Searching with filters:", filters);
   };
 
   const filtered = useMemo(() => {
@@ -93,10 +95,10 @@ export default function EventsSearch() {
           onSearch={handleSearch}
         />
         <div className="mb-2 text-sm text-gray-600">
-          Địa điểm hiện tại: {userLocation.city} - {userLocation.district}
+          Current location: {userLocation.city} - {userLocation.district}
         </div>
         {paginated.map(place => (
-          <EventCard key={place.id} place={place} />
+          <EventCard key={place.id} place={place} onCardClick={() => navigate(`/event/${place.id}`)} />
         ))}
 
         <Pagination page={page} totalPages={totalPages} setPage={setPage} />

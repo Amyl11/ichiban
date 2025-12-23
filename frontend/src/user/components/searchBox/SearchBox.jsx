@@ -35,20 +35,20 @@ function SearchBox({ filters, setFilters, onSearch }) {
 
   return (
     <div className={styles.box}>
-        <h2 className={styles.header}>Tìm kiếm sự kiện</h2>
+        <h2 className={styles.header}>Search Events</h2>
         
-      {/* Hàng 1 */}
+      {/* Row 1 */}
       <div className={styles.row}>
         <input
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && apply()}
-          placeholder="Nhập từ khóa..."
+          placeholder="Enter keyword..."
           className={styles.input}
         />
 
         <button onClick={apply} className={styles.buttonPrimary}>
-          Tìm
+          Search
         </button>
 
         <button onClick={reset} className={styles.buttonSecondary}>
@@ -56,49 +56,49 @@ function SearchBox({ filters, setFilters, onSearch }) {
         </button>
       </div>
 
-      {/* Hàng 2 */}
+      {/* Row 2 */}
       <div className={styles.grid}>
         {/* Range */}
         <div className={styles.field}>
-          <label>Khoảng cách</label>
+          <label>Distance</label>
           <select
             value={rangeOption}
             onChange={(e) => setRangeOption(e.target.value)}
             className={styles.input}
           >
-            <option value="district">Cùng quận</option>
-            <option value="city">Cùng thành phố</option>
-            <option value="all">Không lọc</option>
+            <option value="district">Same District</option>
+            <option value="city">Same City</option>
+            <option value="all">No Filter</option>
           </select>
         </div>
 
         {/* Sort */}
         <div className={styles.field}>
-          <label>Sắp xếp</label>
+          <label>Sort</label>
           <select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
             className={styles.input}
           >
-            <option value="none">Không sắp xếp</option>
-            <option value="ratingAsc">Rating thấp → cao</option>
-            <option value="ratingDesc">Rating cao → thấp</option>
-            <option value="priceAsc">Giá thấp → cao</option>
-            <option value="priceDesc">Giá cao → thấp</option>
-            <option value="priceFreeFirst">Miễn phí trước</option>
+            <option value="none">No Sort</option>
+            <option value="ratingAsc">Rating Low → High</option>
+            <option value="ratingDesc">Rating High → Low</option>
+            <option value="priceAsc">Price Low → High</option>
+            <option value="priceDesc">Price High → Low</option>
+            <option value="priceFreeFirst">Free First</option>
           </select>
         </div>
 
         {/* Max Price */}
         <div className={styles.field}>
-          <label>Giá tối đa</label>
+          <label>Max Price</label>
           <input
             type="number"
             min={0}
             value={maxPrice}
             onChange={(e) => setMaxPrice(Number(e.target.value))}
             className={styles.input}
-            placeholder="Giá tối đa"
+            placeholder="Max price"
           />
         </div>
       </div>
