@@ -1,0 +1,48 @@
+package com.example.event.controller;
+
+import com.example.event.dto.request.EventSearchRequest;
+import com.example.event.dto.response.EventSearchResponse;
+import com.example.event.dto.response.EventReviewResponse;
+import com.example.event.dto.response.detail.EventDetailResponse; // Add this
+import com.example.event.service.EventService;
+import com.example.event.service.EventDetailService; // Add this
+import com.example.event.util.SecurityUtils; // Add this
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/events")
+public class EventController {
+
+    private final EventService eventService;
+    private final EventDetailService eventDetailService; // Inject this
+
+    public EventController(EventService eventService, EventDetailService eventDetailService) {
+        this.eventService = eventService;
+        this.eventDetailService = eventDetailService;
+    }
+
+    // ✅ ADD THIS METHOD: This is what /api/events/1 calls
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDetailResponse> getEventDetail(@PathVariable Long eventId) {
+        // 1. Get the current user ID from the JWT token
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        
+        // 2. Call the Detail Service (which handles isFavorite and isMyComment)
+        EventDetailResponse response = eventDetailService.getEventDetails(eventId, currentUserId);
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/search")
+    public EventSearchResponse searchEvents(@RequestBody EventSearchRequest request) {
+        return eventService.searchEvents(request.getPage(), request.getSize());
+    }
+
+    @GetMapping("/{eventId}/reviews")
+    public EventReviewResponse getEventReviews(
+            @PathVariable Long eventId,
+            @RequestParam(name = "sort", defaultValue = "recent") String sort) {
+        return eventService.getEventReviews(eventId, sort);
+    }
+}

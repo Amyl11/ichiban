@@ -1,0 +1,5 @@
+package com.example.event.dto.response;
+
+public class CommentResponse {
+
+}

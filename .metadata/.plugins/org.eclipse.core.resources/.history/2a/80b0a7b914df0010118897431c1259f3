@@ -1,0 +1,24 @@
+package com.example.event.controller;
+
+import com.example.event.dto.response.detail.EventDetailResponse;
+import com.example.event.service.EventDetailService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/events")
+public class EventDetailController {
+
+    private final EventDetailService eventDetailService;
+
+    public EventDetailController(EventDetailService eventDetailService) {
+        this.eventDetailService = eventDetailService;
+    }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDetailResponse> getEventDetails(@PathVariable Long eventId) {
+        return ResponseEntity.ok(
+                eventDetailService.getEventDetails(eventId)
+        );
+    }
+}

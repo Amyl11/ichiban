@@ -1,0 +1,89 @@
+package com.example.event.service;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.event.dto.response.detail.EventDetailResponse;
+import com.example.event.dto.response.detail.EventReviewItemResponse;
+import com.example.event.exception.ResourceNotFoundException;
+import com.example.event.repository.EventDetailProjection; // NEW IMPORT
+import com.example.event.repository.EventRepository;
+
+@Service
+public class EventDetailService {
+
+    private final EventRepository eventRepository;
+
+    // 1. Manual Constructor for Dependency Injection (required without Lombok)
+    public EventDetailService(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
+    
+    // Formatter for the review date field (e.g., "2025/12/16")
+    private static final DateTimeFormatter REVIEW_DATE_FORMATTER = 
+        DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
+
+    public EventDetailResponse getEventDetails(Long eventId) {
+        
+        // 1. Fetch Core Event Details using the type-safe Projection Interface
+        EventDetailProjection coreData = eventRepository.findEventDetailProjection(eventId)
+            .orElseThrow(() -> new ResourceNotFoundException("Event not found with ID: " + eventId));
+            
+        // 2. Map Core Data (Directly use getters - NO MORE CASTING ERRORS)
+        
+        // --- Core Event Data ---
+        Long id = coreData.getId();
+        String title = coreData.getTitle();
+        String description = coreData.getDescription();
+        BigDecimal price = coreData.getPrice();
+        OffsetDateTime startDatetime = coreData.getStartDatetime();
+        OffsetDateTime endDatetime = coreData.getEndDatetime();
+        String categoryName = coreData.getCategoryName();
+
+        // --- Location Data ---
+        String district = coreData.getDistrict();
+        String address = coreData.getAddress();
+        String city = coreData.getCity();
+        
+        // Create formatted strings for the response DTO
+        String locationSummary = String.format("%s • %s • Price $%s", district, city, price.toString());
+        String fullAddress = String.format("%s, %s, %s", address, district, city);
+
+        
+        // 3. Fetch and Map Reviews
+        // This query still returns Object[] because it joins data from two different Models (User, EventComment)
+        List<Object[]> reviewObjects = eventRepository.findEventReviewsByEventId(eventId);
+        List<EventReviewItemResponse> reviews = reviewObjects.stream()
+            .map(row -> new EventReviewItemResponse(
+                (String) row[0], // userName
+                (Integer) row[1], // rating
+                (String) row[2], // comment
+                REVIEW_DATE_FORMATTER.format((OffsetDateTime) row[3]) // date
+            ))
+            .collect(Collectors.toList()); 
+
+        // 4. Fetch Images
+        List<String> images = eventRepository.findEventImageUrlsByEventId(eventId);
+        
+        // 5. Build Final DTO using the manual constructor
+        return new EventDetailResponse(
+            id, 
+            title, 
+            locationSummary, 
+            fullAddress, 
+            description, 
+            price, 
+            startDatetime, 
+            endDatetime, 
+            List.of(categoryName), // Wrap categoryName in a List
+            images, 
+            reviews
+        );
+    }
+}

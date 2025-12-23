@@ -1,0 +1,5 @@
+package com.example.event.dto.request;
+
+public class CommentRequest {
+
+}

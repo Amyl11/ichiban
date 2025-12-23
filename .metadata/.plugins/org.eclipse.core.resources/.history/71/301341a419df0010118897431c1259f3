@@ -1,0 +1,123 @@
+package com.example.event.service;
+
+import com.example.event.dto.request.CommentRequest;
+import com.example.event.dto.response.CommentResponse;
+import com.example.event.model.EventComment;
+import com.example.event.model.User;
+import com.example.event.model.Event;
+import com.example.event.repository.EventCommentRepository;
+import com.example.event.repository.CommentSearchRepository;
+import com.example.event.repository.UserRepository; // Added
+import com.example.event.repository.EventRepository; // Added
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class CommentService {
+
+    private final EventCommentRepository commentRepository;
+    private final CommentSearchRepository searchRepository;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+
+    public CommentService(EventCommentRepository commentRepository, 
+                          CommentSearchRepository searchRepository,
+                          UserRepository userRepository,
+                          EventRepository eventRepository) {
+        this.commentRepository = commentRepository;
+        this.searchRepository = searchRepository;
+        this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
+    }
+
+    /**
+     * Retrieves all comments for an event.
+     * currentUserId is used to determine the 'isMyComment' flag in the response.
+     */
+    public List<CommentResponse> getCommentsByEvent(Long eventId, Long currentUserId) {
+        return searchRepository.findCommentsByEventWithUser(eventId).stream()
+                .map(entity -> mapToResponse(entity, currentUserId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Creates a new comment. Enforces one comment per user per event.
+     */
+    @Transactional
+    public CommentResponse createComment(Long userId, Long eventId, CommentRequest request) {
+        // 1. Business Rule: One comment per user per event
+        if (commentRepository.existsByEventIdAndUserId(eventId, userId)) {
+            throw new RuntimeException("User has already commented on this event");
+        }
+
+        // 2. Fetch Real Entities to ensure data integrity and get names
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found with ID: " + eventId));
+
+        // 3. Map Request to Entity
+        EventComment comment = new EventComment();
+        comment.setUser(user);
+        comment.setEvent(event);
+        comment.setComment(request.getContent());
+        comment.setRating(request.getRating());
+        comment.setCreatedAt(OffsetDateTime.now());
+
+        EventComment savedComment = commentRepository.save(comment);
+
+        // 4. Return DTO
+        return mapToResponse(savedComment, userId);
+    }
+
+    /**
+     * Updates an existing comment. Only allowed if the comment belongs to the user.
+     */
+    @Transactional
+    public CommentResponse updateComment(Long userId, Long commentId, CommentRequest request) {
+        EventComment comment = commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new RuntimeException("Comment not found or you do not have permission to edit it"));
+
+        comment.setComment(request.getContent());
+        comment.setRating(request.getRating());
+        comment.setUpdatedAt(OffsetDateTime.now());
+
+        return mapToResponse(commentRepository.save(comment), userId);
+    }
+
+    /**
+     * Deletes a comment. Only allowed if the comment belongs to the user.
+     */
+    @Transactional
+    public void deleteComment(Long userId, Long commentId) {
+        EventComment comment = commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new RuntimeException("Comment not found or you do not have permission to delete it"));
+        commentRepository.delete(comment);
+    }
+
+    /**
+     * Mapper Helper: Converts Entity to Response DTO and calculates 'isMyComment'.
+     */
+    private CommentResponse mapToResponse(EventComment entity, Long currentUserId) {
+        CommentResponse res = new CommentResponse();
+        res.setId(entity.getId());
+        res.setContent(entity.getComment());
+        res.setRating(entity.getRating());
+        res.setCreatedAt(entity.getCreatedAt());
+        
+        // Handle User details
+        if (entity.getUser() != null) {
+            res.setUserName(entity.getUser().getFullName()); 
+            
+            // Critical: Compare IDs to set the 'isMyComment' flag
+            boolean isMine = currentUserId != null && entity.getUser().getId().equals(currentUserId);
+            res.setIsMyComment(isMine);
+        }
+        
+        return res;
+    }
+}

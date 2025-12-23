@@ -1,0 +1,34 @@
+package com.example.event.controller;
+
+import com.example.event.dto.response.detail.EventDetailResponse;
+import com.example.event.service.EventDetailService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/events")
+public class EventDetailController {
+
+    private final EventDetailService eventDetailService;
+
+    public EventDetailController(EventDetailService eventDetailService) {
+        this.eventDetailService = eventDetailService;
+    }
+
+    /**
+     * GET Event Details
+     * URL: /api/events/{eventId}?testerId=2
+     * * @param eventId The ID of the event to view
+     * @param testerId (Optional) The ID of the user viewing the event to mark 'isMyComment'
+     */
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDetailResponse> getEventDetails(
+            @PathVariable Long eventId,
+            @RequestParam(required = false) Long testerId) { // Optional parameter for testing
+        
+        // We pass the testerId (or null) to the service
+        EventDetailResponse response = eventDetailService.getEventDetails(eventId, testerId);
+        
+        return ResponseEntity.ok(response);
+    }
+}

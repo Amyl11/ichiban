@@ -1,0 +1,5 @@
+package com.example.event.repository;
+
+public class CommentSearchRepository {
+
+}

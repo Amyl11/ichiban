@@ -1,0 +1,98 @@
+package com.example.event.service;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.event.dto.response.detail.EventDetailResponse;
+import com.example.event.dto.response.detail.EventReviewItemResponse;
+import com.example.event.exception.ResourceNotFoundException;
+import com.example.event.repository.EventDetailProjection;
+import com.example.event.repository.EventRepository;
+
+@Service
+public class EventDetailService {
+
+    private final EventRepository eventRepository;
+
+    public EventDetailService(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
+    
+    private static final DateTimeFormatter REVIEW_DATE_FORMATTER = 
+        DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
+
+    /**
+     * @param eventId The ID of the event
+     * @param currentUserId The ID of the logged-in user (null if guest)
+     */
+    public EventDetailResponse getEventDetails(Long eventId, Long currentUserId) {
+        
+        // 1. Fetch Core Event Details
+        EventDetailProjection coreData = eventRepository.findEventDetailProjection(eventId)
+            .orElseThrow(() -> new ResourceNotFoundException("Event not found with ID: " + eventId));
+            
+        // 2. Map Core Data
+        Long id = coreData.getId();
+        String title = coreData.getTitle();
+        String description = coreData.getDescription();
+        BigDecimal price = coreData.getPrice();
+        OffsetDateTime startDatetime = coreData.getStartDatetime();
+        OffsetDateTime endDatetime = coreData.getEndDatetime();
+        String categoryName = coreData.getCategoryName();
+
+        String district = coreData.getDistrict();
+        String address = coreData.getAddress();
+        String city = coreData.getCity();
+        
+        String locationSummary = String.format("%s • %s • Price $%s", district, city, price.toString());
+        String fullAddress = String.format("%s, %s, %s", address, district, city);
+
+        // 3. Fetch and Map Reviews
+        List<Object[]> reviewObjects = eventRepository.findEventReviewsByEventId(eventId);
+        List<EventReviewItemResponse> reviews = reviewObjects.stream()
+            .map(row -> {
+                String userName = (String) row[0];
+                Integer rating = (Integer) row[1];
+                String commentText = (String) row[2];
+                OffsetDateTime createdAt = (OffsetDateTime) row[3];
+                Long commentAuthorId = (Long) row[4]; // The User ID of the person who wrote the comment
+
+                // THE LOGIC: Is this my comment?
+                // It is true ONLY if user is logged in AND IDs match
+                Boolean isMyComment = (currentUserId != null) && currentUserId.equals(commentAuthorId);
+
+                return new EventReviewItemResponse(
+                    userName, 
+                    rating, 
+                    REVIEW_DATE_FORMATTER.format(createdAt), // date string
+                    commentText, // comment text
+                    isMyComment
+                );
+            })
+            .collect(Collectors.toList()); 
+
+        // 4. Fetch Images
+        List<String> images = eventRepository.findEventImageUrlsByEventId(eventId);
+        
+        // 5. Build Final DTO
+        return new EventDetailResponse(
+            id, 
+            title, 
+            locationSummary, 
+            fullAddress, 
+            description, 
+            price, 
+            startDatetime, 
+            endDatetime, 
+            List.of(categoryName),
+            images, 
+            reviews
+        );
+    }
+}

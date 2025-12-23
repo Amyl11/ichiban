@@ -1,0 +1,69 @@
+package com.example.event.controller;
+
+import com.example.event.dto.response.EventSummaryResponse;
+import com.example.event.service.EventFavoriteService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/users/{userId}/favorites") // Base path includes userId
+public class EventFavoriteController {
+
+    private final EventFavoriteService favoriteService;
+
+    // Manual Constructor
+    public EventFavoriteController(EventFavoriteService favoriteService) {
+        this.favoriteService = favoriteService;
+    }
+
+    /**
+     * GET /api/users/{userId}/favorites
+     * Retrieves all events favorited by the specified user.
+     */
+    @GetMapping
+    public ResponseEntity<List<EventSummaryResponse>> getFavorites(
+            @PathVariable Long userId) {
+        
+        List<EventSummaryResponse> favorites = favoriteService.getFavoritesByUserId(userId);
+        return ResponseEntity.ok(favorites);
+    }
+
+    /**
+     * POST /api/users/{userId}/favorites/{eventId}
+     * Adds an event to the user's favorites list.
+     */
+    @PostMapping("/{eventId}")
+    public ResponseEntity<Void> addFavorite(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        
+        // Call the service method, which now returns true if created
+        boolean wasCreated = favoriteService.addFavorite(userId, eventId);
+
+        if (wasCreated) {
+            // Status 201: New record was created successfully
+            return new ResponseEntity<>(HttpStatus.CREATED); 
+        } else {
+            // Status 200/204: Record already existed (idempotent success)
+            // 204 No Content is often preferred for idempotent updates/saves with no body.
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+        }
+    }
+
+    /**
+     * DELETE /api/users/{userId}/favorites/{eventId}
+     * Removes an event from the user's favorites list.
+     */
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<Void> removeFavorite(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        
+        favoriteService.removeFavorite(userId, eventId);
+        // Returns 204 No Content, indicating successful deletion/completion
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+    }
+}

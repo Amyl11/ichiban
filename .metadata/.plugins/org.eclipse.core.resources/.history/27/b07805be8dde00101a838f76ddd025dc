@@ -1,0 +1,53 @@
+package com.example.event.controller;
+
+import com.example.event.dto.request.CommentRequest;
+import com.example.event.dto.response.CommentResponse;
+import com.example.event.service.CommentService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+public class CommentController {
+
+    private final CommentService commentService;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
+    // GET: /api/events/{eventId}/comments?testerId=1
+    @GetMapping("/events/{eventId}/comments")
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable Long eventId, 
+            @RequestParam(required = false) Long testerId) {
+        return ResponseEntity.ok(commentService.getCommentsByEvent(eventId, testerId));
+    }
+
+    // POST: /api/users/{uId}/events/{eId}/comments
+    @PostMapping("/users/{uId}/events/{eId}/comments")
+    public ResponseEntity<CommentResponse> createComment(
+            @PathVariable Long uId, 
+            @PathVariable Long eId, 
+            @RequestBody CommentRequest request) {
+        return ResponseEntity.ok(commentService.createComment(uId, eId, request));
+    }
+
+    // PUT: /api/users/{uId}/comments/{cId}
+    @PutMapping("/users/{uId}/comments/{cId}")
+    public ResponseEntity<CommentResponse> updateComment(
+            @PathVariable Long uId, 
+            @PathVariable Long cId, 
+            @RequestBody CommentRequest request) {
+        return ResponseEntity.ok(commentService.updateComment(uId, cId, request));
+    }
+
+    // DELETE: /api/users/{uId}/comments/{cId}
+    @DeleteMapping("/users/{uId}/comments/{cId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long uId, @PathVariable Long cId) {
+        commentService.deleteComment(uId, cId);
+        return ResponseEntity.noContent().build();
+    }
+}

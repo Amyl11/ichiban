@@ -1,0 +1,92 @@
+package com.example.event.service;
+
+import com.example.event.dto.request.CommentRequest;
+import com.example.event.dto.response.CommentResponse;
+import com.example.event.model.EventComment;
+import com.example.event.repository.EventCommentRepository;
+import com.example.event.repository.CommentSearchRepository;
+import com.example.event.model.User;
+import com.example.event.model.Event;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class CommentService {
+
+    private final EventCommentRepository commentRepository;
+    private final CommentSearchRepository searchRepository;
+
+    public CommentService(EventCommentRepository commentRepository, CommentSearchRepository searchRepository) {
+        this.commentRepository = commentRepository;
+        this.searchRepository = searchRepository;
+    }
+
+    public List<CommentResponse> getCommentsByEvent(Long eventId, Long currentUserId) {
+        // Using the searchRepository for better performance (Join Fetch)
+        return searchRepository.findCommentsByEventWithUser(eventId).stream()
+                .map(entity -> mapToResponse(entity, currentUserId))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public CommentResponse createComment(Long userId, Long eventId, CommentRequest request) {
+        // 1. Check if user already commented
+        if (commentRepository.existsByEventIdAndUserId(eventId, userId)) {
+            throw new RuntimeException("User has already commented on this event");
+        }
+
+        // 2. Fetch the REAL objects from DB (CRITICAL)
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        // 3. Map Request to Entity
+        EventComment comment = new EventComment();
+        comment.setUser(user);   // This sets the correct User ID
+        comment.setEvent(event); // This sets the correct Event ID
+        comment.setComment(request.getContent());
+        comment.setRating(request.getRating());
+        comment.setCreatedAt(OffsetDateTime.now());
+
+        EventComment savedComment = commentRepository.save(comment);
+
+        // 4. Return mapped response
+        return mapToResponse(savedComment, userId);
+    }
+
+    @Transactional
+    public CommentResponse updateComment(Long userId, Long commentId, CommentRequest request) {
+        EventComment comment = commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new RuntimeException("Comment not found or unauthorized"));
+
+        comment.setComment(request.getContent());
+        comment.setRating(request.getRating());
+        comment.setUpdatedAt(OffsetDateTime.now());
+
+        return mapToResponse(commentRepository.save(comment), userId);
+    }
+
+    @Transactional
+    public void deleteComment(Long userId, Long commentId) {
+        EventComment comment = commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new RuntimeException("Comment not found or unauthorized"));
+        commentRepository.delete(comment);
+    }
+
+    // Manual Mapper Logic (The "Help Me" logic)
+    private CommentResponse mapToResponse(EventComment entity, Long currentUserId) {
+        CommentResponse res = new CommentResponse();
+        res.setId(entity.getId());
+        res.setContent(entity.getComment());
+        res.setRating(entity.getRating());
+        res.setCreatedAt(entity.getCreatedAt());
+        res.setUserName(entity.getUser().getFullName()); // Assumes User has getName()
+        res.setIsMyComment(entity.getUser().getId().equals(currentUserId));
+        return res;
+    }
+}

@@ -1,0 +1,55 @@
+package com.example.event.controller;
+
+import com.example.event.dto.request.CommentRequest;
+import com.example.event.dto.response.CommentResponse;
+import com.example.event.service.CommentService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/comments")
+public class CommentController {
+
+    private final CommentService commentService;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
+    /**
+     * POST /api/comments/events/{eId}
+     * Identity taken from JWT. No uId in URL.
+     */
+    @PostMapping("/events/{eId}")
+    public ResponseEntity<CommentResponse> createComment(
+            @PathVariable Long eId, 
+            @Valid @RequestBody CommentRequest request) {
+        
+        CommentResponse response = commentService.createComment(eId, request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    /**
+     * PUT /api/comments/{cId}
+     * Updating your own comment.
+     */
+    @PutMapping("/{cId}")
+    public ResponseEntity<CommentResponse> updateComment(
+            @PathVariable Long cId, 
+            @Valid @RequestBody CommentRequest request) {
+        
+        CommentResponse response = commentService.updateComment(cId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * DELETE /api/comments/{cId}
+     */
+    @DeleteMapping("/{cId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long cId) {
+        commentService.deleteComment(cId);
+        return ResponseEntity.noContent().build();
+    }
+}
