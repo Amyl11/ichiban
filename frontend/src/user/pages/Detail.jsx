@@ -1,23 +1,57 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Home, Search, Heart, Calendar, Menu, MapPin, Tag, Clock, ChevronLeft, ChevronRight, Share2, Star, ArrowLeft, Navigation } from 'lucide-react';
-import Header from '../components/header/Header';
-import { getEventDetail, getEventReviews, submitEventReview } from '../../services/EventService'
-import { formatDate, formatPrice } from "../../ultis/format";
+import { fetchEventDetail } from '../../services/SearchDetailService';
+import { addToFavorite, removeFromFavorite, checkIfFavorited } from '../../services/FavoriteService';
 
 export default function PlaceDetailPage() {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { id } = useParams();
-
-  const [place, setPlace] = useState(null);
+  const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [averageRating, setAverageRating] = useState(0);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [reviews, setReviews] = useState([]);
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [hoveredRating, setHoveredRating] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
+
+  // Fetch event data on component mount
+  useEffect(() => {
+    const loadEventDetail = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchEventDetail(eventId);
+        setEventData(data);
+        
+        // Check if already favorited
+        const favorited = await checkIfFavorited(eventId);
+        setIsFavorited(favorited);
+      } catch (err) {
+        setError(err.message);
+        console.error('Failed to load event:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (eventId) {
+      loadEventDetail();
+    }
+  }, [eventId]);
+
+  // Use fetched data or show loading/error state
+  const place = eventData ? {
+    id: eventData.id,
+    name: eventData.title,
+    location: eventData.locationSummary,
+    address: eventData.address,
+    categories: eventData.categories,
+    openingHours: `${eventData.startDatetime} - ${eventData.endDatetime}`,
+    description: eventData.description,
+    images: eventData.images || [],
+    price: eventData.price
+  } : null;
+
+  const reviews = eventData?.reviews || [];
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % place.images.length);
@@ -35,7 +69,25 @@ export default function PlaceDetailPage() {
         url: window.location.href
       });
     } else {
-      alert('この機能はお使いのブラウザではサポートされていません');
+      alert('This feature is not supported by your browser');
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      setIsUpdatingFavorite(true);
+      if (isFavorited) {
+        await removeFromFavorite(eventId);
+        setIsFavorited(false);
+      } else {
+        await addToFavorite(eventId);
+        setIsFavorited(true);
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert('Error updating favorite status');
+    } finally {
+      setIsUpdatingFavorite(false);
     }
   };
 
@@ -44,76 +96,84 @@ export default function PlaceDetailPage() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
   };
 
-  const handleSubmitReview = async (e) => {
-    e.preventDefault();
-    
-    if (rating === 0) {
-      alert('評価を選択してください');
-      return;
-    }
-
-    if (!comment.trim()) {
-      alert('コメントを入力してください');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      await submitEventReview(id, rating, comment);
-      
-      // Reset form
-      setRating(0);
-      setComment('');
-      setHoveredRating(0);
-      
-      // Refresh reviews
-      const reviewRes = await getEventReviews(id, "latest");
-      setReviews(reviewRes.reviews || []);
-      setAverageRating(reviewRes.averageRating);
-      setTotalReviews(reviewRes.totalReviews);
-      
-      alert('レビューを投稿しました！');
-    } catch (error) {
-      console.error("Submit review failed:", error);
-      alert('レビューの投稿に失敗しました。もう一度お試しください。');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const eventDetail = await getEventDetail(id);
-        setPlace(eventDetail);
-
-        const reviewRes = await getEventReviews(id, "latest");
-        setReviews(reviewRes.reviews || []);
-        setAverageRating(reviewRes.averageRating);
-        setTotalReviews(reviewRes.totalReviews);
-      } catch (error) {
-        console.error("Load event detail failed:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) fetchData();
-  }, [id]);
-
-  if (loading) {
-    return <div className="p-10 text-center">Loading...</div>;
-  }
-
-  if (!place) {
-    return <div className="p-10 text-center">No data</div>;
-  }
+  const handleNavigateHome = () => navigate('/');
+  const handleNavigateSearch = () => navigate('/events/search');
+  const handleNavigateFavorites = () => navigate('/favorites');
+  const handleNavigateEvents = () => navigate('/events/search');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50">
-      <Header />
+      {loading && (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading event details...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <p className="text-red-600 font-semibold mb-2">Error Loading Event</p>
+            <p className="text-red-500">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {place && !loading && !error && (
+      <>
+      {/* Header */}
+      <header className="bg-white shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">HW</span>
+                </div>
+                <span className="text-xl font-bold text-gray-900">Happy Weekend</span>
+              </div>
+              <span className="text-sm text-gray-500 hidden sm:block">Weekend Adventures</span>
+            </div>
+            
+            <nav className="hidden md:flex items-center gap-6">
+              <button 
+                onClick={handleNavigateHome}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
+                <Home size={20} />
+                <span>Home</span>
+              </button>
+              <button 
+                onClick={handleNavigateSearch}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
+                <Search size={20} />
+                <span>Search</span>
+              </button>
+              <button 
+                onClick={handleNavigateFavorites}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
+                <Heart size={20} />
+                <span>Favorites</span>
+              </button>
+              <button 
+                onClick={handleNavigateEvents}
+                className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
+                <Calendar size={20} />
+                <span>Events</span>
+              </button>
+            </nav>
+            
+            <button className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <Menu size={24} />
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -122,7 +182,7 @@ export default function PlaceDetailPage() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
         >
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium">戻る</span>
+          <span className="font-medium">Back</span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -177,8 +237,17 @@ export default function PlaceDetailPage() {
                     <span>{place.address}, {place.district}, {place.city}</span>
                   </div>
                 </div>
-                <button className="bg-red-50 hover:bg-red-100 text-red-500 p-3 rounded-full transition-all hover:scale-110">
-                  <Heart size={24} />
+                <button 
+                  onClick={handleToggleFavorite}
+                  disabled={isUpdatingFavorite}
+                  className={`p-3 rounded-full transition-all transform hover:scale-110 ${
+                    isFavorited 
+                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/50' 
+                      : 'bg-white border-2 border-red-200 text-red-500 hover:border-red-400'
+                  } disabled:opacity-50`}
+                  title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Heart size={24} fill={isFavorited ? 'currentColor' : 'none'} />
                 </button>
               </div>
 
@@ -212,18 +281,23 @@ export default function PlaceDetailPage() {
             {/* Action Buttons */}
             <div className="flex gap-3">
               <button
-                onClick={() => alert('お気に入りに追加しました！')}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 text-white py-3.5 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105"
+                onClick={handleToggleFavorite}
+                disabled={isUpdatingFavorite}
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 ${
+                  isFavorited 
+                    ? 'bg-red-500 hover:bg-red-600 hover:shadow-xl text-white' 
+                    : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 hover:shadow-xl text-white'
+                }`}
               >
-                <Heart size={20} />
-                お気に入りに追加
+                <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
+                {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
               </button>
               <button
                 onClick={handleShare}
                 className="flex items-center justify-center gap-2 bg-white border-2 border-gray-300 text-gray-700 py-3.5 px-6 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
               >
                 <Share2 size={20} />
-                シェアー
+                Share
               </button>
             </div>
 
@@ -304,21 +378,21 @@ export default function PlaceDetailPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <MapPin className="text-red-500" />
-                場所
+                Location
               </h2>
 
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 mb-4 flex items-center justify-center min-h-[200px] border-2 border-dashed border-blue-200">
                 <div className="text-center">
                   <MapPin size={48} className="text-blue-400 mx-auto mb-3" />
                   <p className="text-gray-600 mb-4 font-medium">
-                    地図 (API統合時にGoogleマップを埋め込む)
+                    Map (Embed Google Maps when API is integrated)
                   </p>
                   <button
                     onClick={openInGoogleMaps}
                     className="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-all shadow-md hover:shadow-lg transform hover:scale-105 font-semibold"
                   >
                     <Navigation size={18} />
-                    Googleマップで開く
+                    Open in Google Maps
                   </button>
                 </div>
               </div>
@@ -330,22 +404,11 @@ export default function PlaceDetailPage() {
 
             {/* Review Section */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  レビュー
-                </h2>
-
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Star className="text-yellow-500 fill-yellow-500" size={16} />
-                    <span className="font-semibold text-gray-900">
-                      {averageRating}
-                    </span>
-                  </div>
-                  <span>({totalReviews} 件)</span>
-                </div>
-              </div>
-
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Star className="text-yellow-500 fill-yellow-500" />
+                Reviews
+              </h2>
+              
               <div className="space-y-4">
                 {reviews.map((review, index) => (
                   <div key={index} className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-5 hover:shadow-md transition-all border border-gray-100">
@@ -375,6 +438,8 @@ export default function PlaceDetailPage() {
           </div>
         </div>
       </main>
+      </>
+      )}
     </div>
   );
 }

@@ -3,6 +3,26 @@ import { Home, Search, Heart, Calendar, Menu, MapPin, Tag, Clock, ChevronLeft, C
 import { useNavigate } from "react-router-dom";
 import styles from "./EventCard.module.css";
 import { formatDate, formatPrice } from "../../../ultis/format";
+import { removeFromFavorite } from "../../../services/FavoriteService";
+
+export default function EventCard({ place, onCardClick, onRemoveFavorite, showRemoveButton = false }) {
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  const handleRemove = async (e) => {
+    e.stopPropagation();
+    try {
+      setIsRemoving(true);
+      await removeFromFavorite(place.id);
+      onRemoveFavorite && onRemoveFavorite();
+    } catch (err) {
+      console.error('Failed to remove from favorites:', err);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
+  // Fallback image if no image is available
+  const imageUrl = place.image || place.mainImageUrl || 'https://via.placeholder.com/200?text=No+Image';
 
 // Hàm tiện ích để giới hạn số ký tự
 const truncateDescription = (text, limit = 50) => {
@@ -25,8 +45,8 @@ export default function EventCard({ place }) {
   };
 
   return (
-    <div className={styles.item}>
-      <img src={place.image} alt={place.name} className={styles.itemImage} />
+    <div className={styles.item} onClick={onCardClick} style={{ cursor: 'pointer' }}>
+      <img src={imageUrl} alt={place.title} className={styles.itemImage} />
 
       <div className={styles.itemContent}>
         <h4 className={styles.itemTitle}>{place.title}</h4>
@@ -66,13 +86,25 @@ export default function EventCard({ place }) {
 
       <div className={styles.rightBox}>
         {/* Rating */}
-        <div className={styles.rating}>{place.rating}</div>
+        {place.rating && <div className={styles.rating}>{place.rating}</div>}
 
         {/* Price */}
         <div className={styles.price}>
           {/* 翻訳: Miễn phí -> 無料 (Miễn phí) */}
           {place.price === 0 ? "無料" : formatPrice(place.price)}
         </div>
+
+        {/* Remove from Favorites Button */}
+        {showRemoveButton && (
+          <button
+            className="bg-red-50 hover:bg-red-100 text-red-500 p-2 rounded transition-colors mb-2"
+            onClick={handleRemove}
+            disabled={isRemoving}
+            title="Remove from favorites"
+          >
+            <Heart size={20} fill="currentColor" />
+          </button>
+        )}
 
         {/* Button */}
         <button onClick={handleDetailClick} className={styles.detailBtn}>

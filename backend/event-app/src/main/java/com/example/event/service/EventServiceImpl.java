@@ -140,10 +140,8 @@ public class EventServiceImpl implements EventService {
         }
         item.setImage(thumbnail);
 
-        // ✅ TÍNH AVERAGE RATING
-        Double avg = eventCommentRepository
-                .findAverageRatingByEventId(event.getId());
-        item.setRating(avg != null ? avg : 0.0);
+        item.setRating(randomRating);
+        item.setImage(event.getImageUrl()); // optional, add image URL field in Event if needed
         return item;
     }
 
