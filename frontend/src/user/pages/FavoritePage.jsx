@@ -20,14 +20,28 @@ export default function FavoritePage() {
       setLoading(true);
       const data = await getFavorite();
       console.log("Fetched favorites data:", data);
-      // API returns array directly or wrapped in favorites property
+      // API returns array directly
       const favoritesArray = Array.isArray(data) ? data : (data.favorites || []);
       console.log("Favorites array:", favoritesArray);
       // Log first item to see structure
       if (favoritesArray.length > 0) {
         console.log("First favorite item structure:", favoritesArray[0]);
       }
-      setFavorites(favoritesArray);
+      // Map backend fields to frontend expected format
+      const mappedFavorites = favoritesArray.map(fav => ({
+        id: fav.id,
+        title: fav.title,
+        image: fav.mainImageUrl,
+        startDate: fav.startDatetime,
+        endDate: fav.startDatetime,
+        city: fav.locationCity,
+        district: fav.locationCity,
+        address: fav.locationCity,
+        shortDescription: fav.title,
+        price: fav.price,
+        rating: 3.6
+      }));
+      setFavorites(mappedFavorites);
     } catch (err) {
       setError(err.message);
       console.error('Failed to load favorites:', err);
