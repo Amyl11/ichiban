@@ -77,8 +77,8 @@ export default function Header() {
 
   // 統合されたヘッダーのレンダリング
   return (
-    // Header 2 のスタイリングを使用 (shadow-md, sticky top-0 z-50)
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    // Header 2 のスタイリングを使用 (shadow-md, sticky top-0 z-50) - ピンクのグラデーション背景に変更
+    <header className="bg-gradient-to-r from-pink-50 via-pink-100 to-rose-100 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -87,14 +87,17 @@ export default function Header() {
             onClick={handleHome}
             className="flex items-center gap-2 cursor-pointer"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
-              {/* ロゴテキストは元の "HW" を保持 */}
-              <span className="text-white font-bold text-sm">HW</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-500 rounded-lg flex items-center justify-center shadow-md">
+              {/* New Event Logo Icon */}
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <circle cx="12" cy="15" r="2" fill="currentColor" />
+              </svg>
             </div>
             {/* サイト名も Header 2 のものを保持 */}
-            <span className="text-xl font-bold text-gray-900">ハッピーウィークエンド</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">ハッピーウィークエンド</span>
             {/* キャッチフレーズも Header 2 のものを保持 */}
-            <span className="text-sm text-gray-500 hidden sm:block">週末の冒険</span>
+            <span className="text-sm text-gray-600 hidden sm:block">週末の冒険</span>
           </div>
 
           {/* Desktop Navigation (Header 2 のスタイリング + Header 1 の機能/テキスト) */}
