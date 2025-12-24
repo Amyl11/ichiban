@@ -37,7 +37,20 @@ export default function HomePage() {
       const token = localStorage.getItem("token");
       if (token) {
         const favorites = await getFavorite();
-        setFavouriteEvents(favorites || []);
+        // Map backend fields to frontend expected format
+        const mappedFavorites = (favorites || []).map(fav => ({
+          id: fav.id,
+          title: fav.title,
+          image: fav.mainImageUrl,
+          startDate: fav.startDatetime,
+          city: fav.locationCity,
+          district: fav.locationCity, // Backend doesn't return district, use city
+          shortDescription: fav.title, // Use title as description
+          price: fav.price,
+          rating: 3.6 // Default rating
+        }));
+        setFavouriteEvents(mappedFavorites);
+      }
       }
     } catch (error) {
       console.error("Error fetching favorites:", error);
@@ -351,7 +364,7 @@ function EventItemCard({ event, compact = false }) {
           <p className="text-xs text-gray-500 mb-1">{event.city || "場所"} • {event.district || "地区"}</p>
         )}
         <p className="text-sm text-gray-600 truncate">
-          {event.shortDescription || "イベントの説明"}
+          {event.shortDescription || event.title || "イベントの説明"}
         </p>
       </div>
       
