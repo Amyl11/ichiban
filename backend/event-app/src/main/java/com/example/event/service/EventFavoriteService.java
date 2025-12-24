@@ -1,22 +1,23 @@
 package com.example.event.service;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.event.dto.response.EventSummaryResponse;
+import com.example.event.exception.ResourceNotFoundException;
 import com.example.event.model.Event;
 import com.example.event.model.EventFavorite;
-import com.example.event.model.EventFavoriteId;
+import com.example.event.model.EventFavoriteId; // Added
 import com.example.event.model.User;
 import com.example.event.repository.EventFavoriteRepository;
 import com.example.event.repository.EventRepository;
 import com.example.event.repository.EventSummaryProjection;
 import com.example.event.repository.UserRepository;
-import com.example.event.util.SecurityUtils; // Added
-import com.example.event.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.event.util.SecurityUtils;
 
 @Service
 public class EventFavoriteService {
