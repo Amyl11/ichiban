@@ -1,8 +1,5 @@
 package com.example.event.repository;
 
-import com.example.event.model.EventFavorite;
-import com.example.event.model.EventFavoriteId;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.example.event.model.EventFavorite;
+import com.example.event.model.EventFavoriteId;
 
 // NOTE: Ensure EventSummaryProjection interface is in this package.
 
@@ -35,7 +35,10 @@ public interface EventFavoriteRepository extends JpaRepository<EventFavorite, Ev
                 e.startDatetime AS startDatetime,
                 el.city AS locationCity, 
                 e.price AS price, 
-                e.imageUrl AS mainImageUrl 
+                COALESCE(
+                    (SELECT ei.imageUrl FROM EventImage ei WHERE ei.event.id = e.id ORDER BY ei.id ASC LIMIT 1),
+                    e.imageUrl
+                ) AS mainImageUrl 
             FROM EventFavorite ef 
             JOIN ef.event e 
             JOIN e.location el 
