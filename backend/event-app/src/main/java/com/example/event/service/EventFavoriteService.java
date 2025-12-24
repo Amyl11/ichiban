@@ -1,22 +1,22 @@
 package com.example.event.service;
 
-import com.example.event.dto.response.EventSummaryResponse;
-import com.example.event.model.Event;
-import com.example.event.model.EventFavorite;
-import com.example.event.model.EventFavoriteId;
-import com.example.event.model.User;
-import com.example.event.repository.EventFavoriteRepository;
-import com.example.event.repository.EventRepository;
-import com.example.event.repository.EventSummaryProjection;
-import com.example.event.repository.UserRepository;
-import com.example.event.util.SecurityUtils; // Added
-import com.example.event.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.event.dto.response.EventSummaryResponse;
+import com.example.event.exception.ResourceNotFoundException;
+import com.example.event.model.Event;
+import com.example.event.model.EventFavorite;
+import com.example.event.model.EventFavoriteId; // Added
+import com.example.event.model.User;
+import com.example.event.repository.EventFavoriteRepository;
+import com.example.event.repository.EventRepository;
+import com.example.event.repository.UserRepository;
+import com.example.event.util.SecurityUtils;
 
 @Service
 public class EventFavoriteService {
@@ -43,18 +43,26 @@ public class EventFavoriteService {
             throw new RuntimeException("You must be logged in to view favorites.");
         }
 
-        List<EventSummaryProjection> projections =
-                favoriteRepository.findFavoriteEventsSummaryByUserId(userId);
+        List<EventFavorite> favorites = favoriteRepository.findByUserIdWithEventAndImages(userId);
 
-        return projections.stream()
-                .map(p -> new EventSummaryResponse(
-                        p.getId(),
-                        p.getTitle(),
-                        p.getStartDatetime(),
-                        p.getLocationCity(),
-                        p.getMainImageUrl(),
-                        p.getPrice()
-                ))
+        return favorites.stream()
+                .map(ef -> {
+                    Event event = ef.getEvent();
+                    // Get image from event_images table (same logic as osusume)
+                    String imageUrl = null;
+                    if (event.getImages() != null && !event.getImages().isEmpty()) {
+                        imageUrl = event.getImages().get(0).getImageUrl();
+                    }
+                    
+                    return new EventSummaryResponse(
+                            event.getId(),
+                            event.getTitle(),
+                            event.getStartDatetime(),
+                            event.getLocation() != null ? event.getLocation().getCity() : null,
+                            imageUrl,
+                            event.getPrice()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

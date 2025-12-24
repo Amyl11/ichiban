@@ -37,7 +37,19 @@ export default function HomePage() {
       const token = localStorage.getItem("token");
       if (token) {
         const favorites = await getFavorite();
-        setFavouriteEvents(favorites || []);
+        // Map backend fields to frontend expected format
+        const mappedFavorites = (favorites || []).map(fav => ({
+          id: fav.id,
+          title: fav.title,
+          image: fav.mainImageUrl,
+          startDate: fav.startDatetime,
+          city: fav.locationCity,
+          district: fav.locationCity, // Backend doesn't return district, use city
+          shortDescription: fav.title, // Use title as description
+          price: fav.price,
+          rating: 3.6 // Default rating
+        }));
+        setFavouriteEvents(mappedFavorites);
       }
     } catch (error) {
       console.error("Error fetching favorites:", error);
@@ -195,8 +207,10 @@ function CalendarComponent({ events = [] }) {
   const getEventCountForDay = (day) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return events.filter(event => {
-      if (!event.startDatetime) return false;
-      const eventDate = new Date(event.startDatetime);
+      // Check both startDatetime (from favorites) and startDate (from search)
+      const eventDateTime = event.startDatetime || event.startDate;
+      if (!eventDateTime) return false;
+      const eventDate = new Date(eventDateTime);
       const eventDateStr = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
       return eventDateStr === dateStr;
     }).length;
@@ -321,10 +335,20 @@ function CalendarComponent({ events = [] }) {
 
 // Event Item Card Component
 function EventItemCard({ event, compact = false }) {
+  const navigate = useNavigate();
   const defaultImage = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400";
   
+  const handleClick = () => {
+    if (event.id) {
+      navigate(`/events/${event.id}`);
+    }
+  };
+  
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 flex gap-4 items-start hover:bg-white transition-all hover:shadow-md border border-pink-100">
+    <div 
+      onClick={handleClick}
+      className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 flex gap-4 items-start hover:bg-white transition-all hover:shadow-md border border-pink-100 cursor-pointer"
+    >
       {/* Image */}
       <img
         src={event.image || defaultImage}
@@ -341,7 +365,7 @@ function EventItemCard({ event, compact = false }) {
           <p className="text-xs text-gray-500 mb-1">{event.city || "場所"} • {event.district || "地区"}</p>
         )}
         <p className="text-sm text-gray-600 truncate">
-          {event.shortDescription || "イベントの説明"}
+          {event.shortDescription || event.title || "イベントの説明"}
         </p>
       </div>
       
