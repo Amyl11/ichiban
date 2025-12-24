@@ -12,12 +12,20 @@ export const getEventDetail = async (id) => {
   return res.data;
 };
 
-export const getEventReviews = async (eventId, sortBy = "latest") => {
-  const res = await axiosClient.get(`/events/${eventId}/reviews`, {
-    params: { sortBy },
-  });
+// export const getEventReviews = async (eventId, sortBy = "latest") => {
+//   const res = await axiosClient.get(`/events/${eventId}/reviews`, {
+//     params: { sortBy },
+//   });
+//   return res.data;
+// };
+
+export const getEventReviews = async (eventId) => {
+  const res = await axiosClient.get(`/comment/events/${eventId}`);
   return res.data;
 };
+
+
+
 
 // ======================== SUBMIT EVENT REVIEW ========================
 export const submitEventReview = async (eventId, rating, comment) => {
