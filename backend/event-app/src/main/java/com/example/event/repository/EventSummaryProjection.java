@@ -11,6 +11,7 @@ public interface EventSummaryProjection {
     String getTitle();
     OffsetDateTime getStartDatetime();
     String getLocationCity(); // maps to el.city
+    String getLocationDistrict(); // maps to el.district
     String getMainImageUrl(); // maps to i.imageUrl
     BigDecimal getPrice();
 }

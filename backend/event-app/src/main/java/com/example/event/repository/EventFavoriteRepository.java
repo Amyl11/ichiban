@@ -33,7 +33,8 @@ public interface EventFavoriteRepository extends JpaRepository<EventFavorite, Ev
                 e.id AS id, 
                 e.title AS title, 
                 e.startDatetime AS startDatetime,
-                el.city AS locationCity, 
+                el.city AS locationCity,
+                el.district AS locationDistrict, 
                 e.price AS price, 
                 COALESCE(
                     (SELECT ei.imageUrl FROM EventImage ei WHERE ei.event.id = e.id ORDER BY ei.id ASC LIMIT 1),

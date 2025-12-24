@@ -44,7 +44,7 @@ export default function HomePage() {
           image: fav.mainImageUrl,
           startDate: fav.startDatetime,
           city: fav.locationCity,
-          district: fav.locationCity, // Backend doesn't return district, use city
+          district: fav.locationDistrict, // Now backend returns district
           shortDescription: fav.title, // Use title as description
           price: fav.price,
           rating: 3.6 // Default rating
@@ -362,7 +362,9 @@ function EventItemCard({ event, compact = false }) {
           {event.title || "イベント名"}
         </h3>
         {!compact && (
-          <p className="text-xs text-gray-500 mb-1">{event.city || "場所"} • {event.district || "地区"}</p>
+          <p className="text-xs text-gray-500 mb-1">
+            {event.district && event.city ? `${event.district}, ${event.city}` : event.city || event.district || "場所"}
+          </p>
         )}
         <p className="text-sm text-gray-600 truncate">
           {event.shortDescription || event.title || "イベントの説明"}

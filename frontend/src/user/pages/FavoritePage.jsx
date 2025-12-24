@@ -35,8 +35,8 @@ export default function FavoritePage() {
         startDate: fav.startDatetime,
         endDate: fav.startDatetime,
         city: fav.locationCity,
-        district: fav.locationCity,
-        address: fav.locationCity,
+        district: fav.locationDistrict,
+        address: fav.locationDistrict && fav.locationCity ? `${fav.locationDistrict}, ${fav.locationCity}` : (fav.locationCity || fav.locationDistrict),
         shortDescription: fav.title,
         price: fav.price,
         rating: 3.6

@@ -13,17 +13,19 @@ public class EventSummaryResponse {
     private final String title;
     private final OffsetDateTime startDatetime;
     private final String locationCity;
+    private final String locationDistrict;
     private final String mainImageUrl;
     private final BigDecimal price;
 
     // Manual Constructor (No Lombok)
     public EventSummaryResponse(
             Long id, String title, OffsetDateTime startDatetime, 
-            String locationCity, String mainImageUrl, BigDecimal price) {
+            String locationCity, String locationDistrict, String mainImageUrl, BigDecimal price) {
         this.id = id;
         this.title = title;
         this.startDatetime = startDatetime;
         this.locationCity = locationCity;
+        this.locationDistrict = locationDistrict;
         this.mainImageUrl = mainImageUrl;
         this.price = price;
     }
@@ -33,6 +35,7 @@ public class EventSummaryResponse {
     public String getTitle() { return title; }
     public OffsetDateTime getStartDatetime() { return startDatetime; }
     public String getLocationCity() { return locationCity; }
+    public String getLocationDistrict() { return locationDistrict; }
     public String getMainImageUrl() { return mainImageUrl; }
     public BigDecimal getPrice() { return price; }
 }

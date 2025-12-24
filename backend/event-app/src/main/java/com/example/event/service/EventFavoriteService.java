@@ -53,6 +53,7 @@ public class EventFavoriteService {
                         p.getTitle(),
                         p.getStartDatetime(),
                         p.getLocationCity(),
+                        p.getLocationDistrict(),
                         p.getMainImageUrl(),
                         p.getPrice()
                 ))
