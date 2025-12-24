@@ -51,7 +51,6 @@ export default function HomePage() {
         }));
         setFavouriteEvents(mappedFavorites);
       }
-      }
     } catch (error) {
       console.error("Error fetching favorites:", error);
       // Nếu không có token hoặc lỗi, để empty array
@@ -208,8 +207,10 @@ function CalendarComponent({ events = [] }) {
   const getEventCountForDay = (day) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return events.filter(event => {
-      if (!event.startDatetime) return false;
-      const eventDate = new Date(event.startDatetime);
+      // Check both startDatetime (from favorites) and startDate (from search)
+      const eventDateTime = event.startDatetime || event.startDate;
+      if (!eventDateTime) return false;
+      const eventDate = new Date(eventDateTime);
       const eventDateStr = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
       return eventDateStr === dateStr;
     }).length;
