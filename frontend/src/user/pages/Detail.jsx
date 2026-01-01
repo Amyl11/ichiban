@@ -210,7 +210,7 @@ export default function PlaceDetailPage() {
               <div className="flex items-center gap-2 text-gray-600 mb-4 bg-green-50 p-3 rounded-lg">
                 <Tag size={18} className="text-green-600" />
                 <span className="font-semibold text-green-700">
-                  {formatPrice(place.price)}
+                  {place.price === 0 ? '無料' : formatPrice(place.price)}
                 </span>
               </div>
 
