@@ -47,7 +47,7 @@ export default function HomePage() {
           district: fav.locationDistrict, // Now backend returns district
           shortDescription: fav.title, // Use title as description
           price: fav.price,
-          rating: 3.6 // Default rating
+          rating: 5 // Default rating
         }));
         setFavouriteEvents(mappedFavorites);
       }
@@ -374,17 +374,17 @@ function EventItemCard({ event, compact = false }) {
       {/* Rating Column */}
       <div className="flex flex-col items-end gap-1">
         <div className="flex items-center gap-1 bg-pink-50 px-3 py-1 rounded-full">
-          <Star className="w-4 h-4 text-pink-500 fill-pink-500" />
+          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
           <span className="text-sm font-semibold text-gray-700">
-            {event.rating || "3.6"}
+            {event.rating || ""}
           </span>
         </div>
-        {!compact && (
+        {/* {!compact && (
           <>
             <span className="text-sm text-gray-500">{event.rating || "3.6"}</span>
             <span className="text-sm text-gray-500">{event.rating || "3.6"}</span>
           </>
-        )}
+        )} */}
       </div>
     </div>
   );

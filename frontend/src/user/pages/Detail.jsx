@@ -168,7 +168,7 @@ export default function PlaceDetailPage() {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{place.title}</h1>
                   <div className="flex items-center gap-2 text-gray-600 mb-3">
                     <MapPin size={18} className="text-red-500" />
-                    <span>{place.address}, {place.district}, {place.city}</span>
+                    <span>{place.address}</span>
                   </div>
                 </div>
 
@@ -231,7 +231,7 @@ export default function PlaceDetailPage() {
                 <div className="text-center">
                   <MapPin size={48} className="text-blue-400 mx-auto mb-3" />
                   <p className="text-gray-600 mb-4 font-medium">
-                    地図 (API統合時にGoogleマップを埋め込む)
+                    地図上で場所を確認します。
                   </p>
                   <button
                     onClick={openInGoogleMaps}
@@ -244,7 +244,7 @@ export default function PlaceDetailPage() {
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700 font-medium">{place.address}, {place.district}, {place.city}</p>
+                <p className="text-gray-700 font-medium">{place.address}</p>
               </div>
             </div>
 

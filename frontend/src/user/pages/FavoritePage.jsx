@@ -33,7 +33,7 @@ export default function FavoritePage() {
         title: fav.title,
         image: fav.mainImageUrl,
         startDate: fav.startDatetime,
-        endDate: fav.startDatetime,
+        endDate: fav.endtDatetime,
         city: fav.locationCity,
         district: fav.locationDistrict,
         address: fav.locationDistrict && fav.locationCity ? `${fav.locationDistrict}, ${fav.locationCity}` : (fav.locationCity || fav.locationDistrict),
@@ -44,7 +44,7 @@ export default function FavoritePage() {
       setFavorites(mappedFavorites);
     } catch (err) {
       setError(err.message);
-      console.error('Failed to load favorites:', err);
+      console.error('お気に入りの読み込みに失敗しました:', err);
     } finally {
       setLoading(false);
     }
@@ -64,9 +64,9 @@ export default function FavoritePage() {
       <Header />
       <div className={styles.wrapper}>
         <div className="mb-6 pb-6 border-b-2 border-gray-200">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">My Favorites</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">お気に入り</h2>
           <p className="text-gray-600">
-            {favorites.length === 0 ? "No favorite events yet" : `You have ${favorites.length} favorite event(s)`}
+            {favorites.length === 0 ? "お気に入りのイベントはまだありません" : `${favorites.length}件のお気に入りイベントがあります`}
           </p>
         </div>
 
@@ -74,32 +74,32 @@ export default function FavoritePage() {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Loading favorites...</p>
+              <p className="text-gray-600 font-medium">お気に入りを読み込み中...</p>
             </div>
           </div>
         )}
 
         {error && (
           <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center mb-6">
-            <p className="text-red-600 font-semibold mb-2">Error Loading Favorites</p>
+            <p className="text-red-600 font-semibold mb-2">お気に入りの読み込みエラー</p>
             <p className="text-red-500 mb-4">{error}</p>
             <button
               onClick={fetchFavorites}
               className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors"
             >
-              Retry
+              再試行
             </button>
           </div>
         )}
 
         {!loading && !error && favorites.length === 0 && (
           <div className="bg-gray-50 rounded-lg p-12 text-center border-2 border-dashed border-gray-300">
-            <p className="text-gray-600 mb-4 text-lg">💔 No favorite events added yet</p>
+            <p className="text-gray-600 mb-4 text-lg">💔 お気に入りイベントがまだ追加されていません</p>
             <button
               onClick={() => navigate('/events/search')}
               className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg transition-colors font-semibold"
             >
-              Browse Events
+              イベントを探す
             </button>
           </div>
         )}

@@ -129,15 +129,6 @@ export default function Header() {
               <span>お気に入り</span>
             </button>
             
-            {/* 翻訳: Giới thiệu -> 概要 */}
-            <button 
-              onClick={handleAbout} 
-              className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors"
-            >
-              <Calendar size={20} /> {/* Calendarアイコンを流用 */}
-              <span>概要</span>
-            </button>
-            
             {/* 認証状態による表示切り替え (Header 1 の機能と一部スタイリング) */}
             {!isLoggedIn ? (
               <>
