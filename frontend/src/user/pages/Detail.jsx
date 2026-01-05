@@ -53,7 +53,7 @@ export default function PlaceDetailPage() {
         setIsFavorited(true);
       }
     } catch (err) {
-      alert('Please login to use favorite feature');
+      alert('ログインするとお気に入り機能が使えます。');
     } finally {
       setIsUpdatingFavorite(false);
     }
