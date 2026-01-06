@@ -117,7 +117,7 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
       navigate('/events/search');
     } catch (err) {
       console.error("Login fail:", err);
-      alert("Login failed");
+      alert("ログインに失敗しました");
     } finally {
       setLoading(false);
     }
@@ -138,8 +138,8 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
 
       <InputField
         type="text"
-        placeholder="ユーザー名を入力"
-        label="ユーザー名"
+        placeholder="メールアドレスを入力"
+        label="メールアドレス"
         icon={User}
         value={username}
         onChange={(e) => setUsername(e.target.value)}
